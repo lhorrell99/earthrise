@@ -1,0 +1,16 @@
+{
+  "name": "portfolio-intro-screen-testbed",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^4.4.10"
+  },
+  "dependencies": {
+    "three": "^0.157.0",
+    "tweakpane": "^4.0.1"
+  }
+}
