@@ -1,6 +1,8 @@
 # folders
 .vscode/
 node_modules
+nasa-earth
+nasa-moon
 
 # files
 .env

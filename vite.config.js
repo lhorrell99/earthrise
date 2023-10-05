@@ -4,7 +4,7 @@ export default {
   base: "./",
   server: {
     host: true,
-    open: false
+    open: false,
   },
   build: {
     outDir: "../dist",

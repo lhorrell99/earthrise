@@ -1,11 +1,19 @@
 import * as THREE from "three";
 import { Pane } from "tweakpane";
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-THREE.ColorManagement.enabled = false
+THREE.ColorManagement.enabled = false; // review this (And look at color spaces more widely)
 
-// GUI
-const gui = new Pane();
+const textureURL = "/lroc_color_poles_1k.jpg";
+const displacementURL = "/ldem_3_8bit.jpg";
+
+// GUI params
+const PARAMS = {
+  cameraFOV: 75,
+  cameraX: 0,
+  cameraY: 0,
+  cameraZ: 5,
+};
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -13,14 +21,53 @@ const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
 
+// Textures
+const textureLoader = new THREE.TextureLoader();
+const texture = textureLoader.load(textureURL);
+const displacementMap = textureLoader.load(displacementURL);
+
 // Geometries
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
-const geometry = new THREE.SphereGeometry(1, 32, 32)
-const mesh = new THREE.Mesh(geometry, material)
-scene.add(mesh)
+const moonMaterial = new THREE.MeshPhongMaterial({
+  color: 0xffffff,
+  map: texture,
+  displacementMap: displacementMap, // TODO figure out error
+  displacementScale: 0.06,
+  bumpMap: displacementMap,
+  bumpScale: 0.04,
+  reflectivity: 0,
+  shininess: 0,
+});
+
+const sphereGeometry = new THREE.SphereGeometry(
+  2, // radius
+  64, // widthSegments, longitude (meridian)
+  64 // heightSegments, latitude (equator)
+);
+
+const moonMesh = new THREE.Mesh(sphereGeometry, moonMaterial);
+scene.add(moonMesh);
+
+// Lights
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(-100, 10, 50);
+scene.add(light);
+
+const ambiLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambiLight);
+
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.1);
+hemiLight.color.setHSL(0.6, 1, 0.6);
+hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+hemiLight.position.set(0, 0, 0);
+scene.add(hemiLight);
+
+// Show axes
+const axesHelper = new THREE.AxesHelper(10); // red = x, green = y, blue = z
+scene.add(axesHelper);
 
 // Sizes
 const sizes = {
+  // Store viewport sizes (for updating camera on resize)
   width: window.innerWidth,
   height: window.innerHeight,
 };
@@ -41,14 +88,15 @@ window.addEventListener("resize", () => {
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
-  75,
-  sizes.width / sizes.height,
-  0.1,
-  100
+  PARAMS.cameraFOV, // FOV
+  sizes.width / sizes.height, // Aspect ratio
+  0.1, // Near distance (nearest visible object - leave fixed unless issues)
+  100 // Far distance (furthest visible object - leave fixed unless issues)
 );
-camera.position.x = 1;
-camera.position.y = 1;
-camera.position.z = 2;
+
+camera.position.x = PARAMS.cameraX;
+camera.position.y = PARAMS.cameraY;
+camera.position.z = PARAMS.cameraZ;
 scene.add(camera);
 
 // Controls
@@ -59,9 +107,64 @@ controls.enableDamping = true;
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
 });
+
 renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+// // Add GUI params
+// const pane = new Pane({
+//   title: "Params",
+// });
+
+// const cameraFolder = pane.addFolder({
+//   expanded: true,
+//   title: "Camera",
+// });
+
+// cameraFolder
+//   .addBinding(PARAMS, "cameraFOV", {
+//     min: 10,
+//     max: 100,
+//     step: 1,
+//   })
+//   .on("change", () => {
+//     camera.fov = PARAMS.cameraFOV; // bit jank (should use a setter but weird results)
+//     camera.updateProjectionMatrix();
+//   });
+
+// cameraFolder
+//   .addBinding(PARAMS, "cameraX", {
+//     min: -10,
+//     max: 10,
+//     step: 0.5,
+//   })
+//   .on("change", () => {
+//     camera.position.x = PARAMS.cameraX;
+//     camera.updateProjectionMatrix();
+//   });
+
+// cameraFolder
+//   .addBinding(PARAMS, "cameraY", {
+//     min: -10,
+//     max: 10,
+//     step: 0.5,
+//   })
+//   .on("change", () => {
+//     camera.position.y = PARAMS.cameraY;
+//     camera.updateProjectionMatrix();
+//   });
+
+// cameraFolder
+//   .addBinding(PARAMS, "cameraZ", {
+//     min: -10,
+//     max: 10,
+//     step: 0.5,
+//   })
+//   .on("change", () => {
+//     camera.position.z = PARAMS.cameraZ;
+//     camera.updateProjectionMatrix();
+//   }); // TODO - DRY
 
 // Animate
 const clock = new THREE.Clock();
@@ -69,8 +172,11 @@ const clock = new THREE.Clock();
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
-  // Update controls
-  controls.update();
+  // Rotate moon
+  moonMesh.rotation.y += 0.002;
+
+  // // Update controls
+  // controls.update();
 
   // Render
   renderer.render(scene, camera);
