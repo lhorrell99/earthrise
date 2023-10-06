@@ -2,12 +2,25 @@ import * as THREE from "three";
 import { Pane } from "tweakpane";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
+// *** Settings ***
+
+const sizes = {
+  // Store viewport sizes (for updating camera on resize)
+  width: window.innerWidth,
+  height: window.innerHeight,
+};
+
 THREE.ColorManagement.enabled = false; // review this (And look at color spaces more widely)
+
+// *** Resources ***
 
 const textureURL = "/lroc_color_poles_1k.jpg";
 const displacementURL = "/ldem_3_8bit.jpg";
+const earthTextureURL = "/lroc_color_poles_1k.jpg";
+const earthDisplacementURL = "/ldem_3_8bit.jpg";
 
-// GUI params
+// *** GUI parameters ***
+
 const PARAMS = {
   cameraFOV: 75,
   cameraX: 0,
@@ -15,18 +28,20 @@ const PARAMS = {
   cameraZ: 5,
 };
 
-// Canvas
+// *** Canvas ***
+
 const canvas = document.querySelector("canvas.webgl");
 
-// Scene
+// *** Scene ***
+
 const scene = new THREE.Scene();
 
-// Textures
+// *** Textures ***
+
 const textureLoader = new THREE.TextureLoader();
 const texture = textureLoader.load(textureURL);
 const displacementMap = textureLoader.load(displacementURL);
 
-// Geometries
 const moonMaterial = new THREE.MeshPhongMaterial({
   color: 0xffffff,
   map: texture,
@@ -38,6 +53,8 @@ const moonMaterial = new THREE.MeshPhongMaterial({
   shininess: 0,
 });
 
+// *** Geometries ***
+
 const sphereGeometry = new THREE.SphereGeometry(
   2, // radius
   64, // widthSegments, longitude (meridian)
@@ -47,7 +64,8 @@ const sphereGeometry = new THREE.SphereGeometry(
 const moonMesh = new THREE.Mesh(sphereGeometry, moonMaterial);
 scene.add(moonMesh);
 
-// Lights
+// *** Lights ***
+
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(-100, 10, 50);
 scene.add(light);
@@ -61,16 +79,21 @@ hemiLight.groundColor.setHSL(0.095, 1, 0.75);
 hemiLight.position.set(0, 0, 0);
 scene.add(hemiLight);
 
-// Show axes
-const axesHelper = new THREE.AxesHelper(10); // red = x, green = y, blue = z
-scene.add(axesHelper);
+// *** Camera ***
 
-// Sizes
-const sizes = {
-  // Store viewport sizes (for updating camera on resize)
-  width: window.innerWidth,
-  height: window.innerHeight,
-};
+const camera = new THREE.PerspectiveCamera(
+  PARAMS.cameraFOV, // FOV
+  sizes.width / sizes.height, // Aspect ratio
+  0.1, // Near distance (nearest visible object - leave fixed unless issues)
+  100 // Far distance (furthest visible object - leave fixed unless issues)
+);
+
+camera.position.x = PARAMS.cameraX;
+camera.position.y = PARAMS.cameraY;
+camera.position.z = PARAMS.cameraZ;
+scene.add(camera);
+
+// *** Resizing ***
 
 window.addEventListener("resize", () => {
   // Update sizes
@@ -86,24 +109,13 @@ window.addEventListener("resize", () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
-// Camera
-const camera = new THREE.PerspectiveCamera(
-  PARAMS.cameraFOV, // FOV
-  sizes.width / sizes.height, // Aspect ratio
-  0.1, // Near distance (nearest visible object - leave fixed unless issues)
-  100 // Far distance (furthest visible object - leave fixed unless issues)
-);
+// *** Controls ***
 
-camera.position.x = PARAMS.cameraX;
-camera.position.y = PARAMS.cameraY;
-camera.position.z = PARAMS.cameraZ;
-scene.add(camera);
-
-// Controls
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 
-// Renderer
+// *** Renderer ***
+
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
 });
@@ -112,61 +124,67 @@ renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// // Add GUI params
-// const pane = new Pane({
-//   title: "Params",
-// });
+// *** Dev Utils ***
 
-// const cameraFolder = pane.addFolder({
-//   expanded: true,
-//   title: "Camera",
-// });
+const axesHelper = new THREE.AxesHelper(10); // red = x, green = y, blue = z
+scene.add(axesHelper);
 
-// cameraFolder
-//   .addBinding(PARAMS, "cameraFOV", {
-//     min: 10,
-//     max: 100,
-//     step: 1,
-//   })
-//   .on("change", () => {
-//     camera.fov = PARAMS.cameraFOV; // bit jank (should use a setter but weird results)
-//     camera.updateProjectionMatrix();
-//   });
+// Add GUI params
+const pane = new Pane({
+  title: "Params",
+});
 
-// cameraFolder
-//   .addBinding(PARAMS, "cameraX", {
-//     min: -10,
-//     max: 10,
-//     step: 0.5,
-//   })
-//   .on("change", () => {
-//     camera.position.x = PARAMS.cameraX;
-//     camera.updateProjectionMatrix();
-//   });
+const cameraFolder = pane.addFolder({
+  expanded: true,
+  title: "Camera",
+});
 
-// cameraFolder
-//   .addBinding(PARAMS, "cameraY", {
-//     min: -10,
-//     max: 10,
-//     step: 0.5,
-//   })
-//   .on("change", () => {
-//     camera.position.y = PARAMS.cameraY;
-//     camera.updateProjectionMatrix();
-//   });
+cameraFolder
+  .addBinding(PARAMS, "cameraFOV", {
+    min: 10,
+    max: 100,
+    step: 1,
+  })
+  .on("change", () => {
+    camera.fov = PARAMS.cameraFOV; // using a setter better but giving weird results
+    camera.updateProjectionMatrix();
+  });
 
-// cameraFolder
-//   .addBinding(PARAMS, "cameraZ", {
-//     min: -10,
-//     max: 10,
-//     step: 0.5,
-//   })
-//   .on("change", () => {
-//     camera.position.z = PARAMS.cameraZ;
-//     camera.updateProjectionMatrix();
-//   }); // TODO - DRY
+cameraFolder
+  .addBinding(PARAMS, "cameraX", {
+    min: -10,
+    max: 10,
+    step: 0.5,
+  })
+  .on("change", () => {
+    camera.position.x = PARAMS.cameraX;
+    camera.updateProjectionMatrix();
+  });
 
-// Animate
+cameraFolder
+  .addBinding(PARAMS, "cameraY", {
+    min: -10,
+    max: 10,
+    step: 0.5,
+  })
+  .on("change", () => {
+    camera.position.y = PARAMS.cameraY;
+    camera.updateProjectionMatrix();
+  });
+
+cameraFolder
+  .addBinding(PARAMS, "cameraZ", {
+    min: -10,
+    max: 10,
+    step: 0.5,
+  })
+  .on("change", () => {
+    camera.position.z = PARAMS.cameraZ;
+    camera.updateProjectionMatrix();
+  }); // TODO - DRY
+
+// *** Animation ***
+
 const clock = new THREE.Clock();
 
 const tick = () => {
