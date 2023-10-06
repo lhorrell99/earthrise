@@ -1,9 +1,4 @@
 import * as THREE from "three";
-import vertexShader from "/shaders/vertex.glsl";
-import fragmentShader from "/shaders/fragment.glsl";
-import atmoVertexShader from "/shaders/atmoVertex.glsl";
-import atmoFragmentShader from "/shaders/atmoFragment.glsl";
-import gsap from "gsap";
 import { Pane } from "tweakpane";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
