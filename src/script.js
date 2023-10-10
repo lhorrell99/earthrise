@@ -43,9 +43,12 @@ const texture = textureLoader.load("/nasa-earth-topo-bathy-july-5400x2700.png");
 
 const earthGeometry = new THREE.SphereGeometry(5, 64, 64);
 
+// const earthMaterial = new THREE.MeshBasicMaterial({ map: texture });
+
 const earthMaterial = new THREE.ShaderMaterial({
   vertexShader,
   fragmentShader,
+  // uniforms: properties passed to a shader from JS
   uniforms: {
     globeTexture: {
       value: texture,
@@ -55,6 +58,8 @@ const earthMaterial = new THREE.ShaderMaterial({
 
 const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
 scene.add(earthMesh);
+
+earthMesh.rotation.y = -0.2
 
 // Atmosphere
 
@@ -72,52 +77,10 @@ const atmoMesh = new THREE.Mesh(atmoGeometry, atmoMaterial);
 atmoMesh.scale.set(1.1, 1.1, 1.1);
 scene.add(atmoMesh);
 
-const group = new THREE.Group();
-group.add(earthMesh);
-scene.add(group);
-
-const starGeometry = new THREE.BufferGeometry();
-
-const starMaterial = new THREE.PointsMaterial({
-  color: 0xffffff,
-});
-
-const starVertices = [];
-
-for (let i = 0; i < 10000; i++) {
-  const x = (Math.random() - 0.5) * 2000;
-  const y = (Math.random() - 0.5) * 2000;
-  const z = -Math.random() * 2000;
-  starVertices.push(x, y, z);
-}
-
-const starBuffer = new THREE.Float32BufferAttribute(starVertices, 3);
-
-starGeometry.setAttribute("position", starBuffer);
-
-const stars = new THREE.Points(starGeometry, starMaterial);
-scene.add(stars);
-
-const mouse = {
-  x: undefined,
-  y: undefined,
-};
-
-addEventListener("mousemove", (e) => {
-  mouse.x = (e.clientX / sizes.width) * 2 - 1;
-  mouse.y = (e.clientY / sizes.height) * 2 - 1;
-  // console.log(mouse)
-});
-
 const animate = function () {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
-  earthMesh.rotation.y += 0.001;
-  gsap.to(group.rotation, {
-    x: mouse.y * 0.2,
-    y: mouse.x * 0.5,
-    duration: 2,
-  });
+  // earthMesh.rotation.y += 0.001;
 };
 
 animate();
