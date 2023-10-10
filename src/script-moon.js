@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { Pane } from "tweakpane";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-
 // ************** D1 **************
 
 // *** Settings ***
@@ -120,7 +119,7 @@ controls.enableDamping = true;
 // *** Renderer ***
 
 const renderer = new THREE.WebGLRenderer({
-antialias: true,
+  antialias: true,
   canvas: canvas,
 });
 
