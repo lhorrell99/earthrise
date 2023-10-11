@@ -43,18 +43,7 @@ const texture = textureLoader.load("/nasa-earth-topo-bathy-july-5400x2700.png");
 
 const earthGeometry = new THREE.SphereGeometry(5, 64, 64);
 
-// const earthMaterial = new THREE.MeshBasicMaterial({ map: texture });
-
-const earthMaterial = new THREE.ShaderMaterial({
-  vertexShader,
-  fragmentShader,
-  // uniforms: properties passed to a shader from JS
-  uniforms: {
-    globeTexture: {
-      value: texture,
-    },
-  },
-});
+const earthMaterial = new THREE.MeshBasicMaterial({ map: texture });
 
 const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
 scene.add(earthMesh);
