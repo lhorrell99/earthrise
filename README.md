@@ -1,6 +1,3 @@
-- Contains three demos/tutorials
-- uncomment one of either 
-
 ``` bash
 # Install dependencies (only the first time)
 npm install

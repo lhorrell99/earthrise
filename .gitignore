@@ -1,8 +1,7 @@
 # folders
-.vscode/
+.vscode
 node_modules
-nasa-earth
-nasa-moon
+texture-processing-python/venv
 
 # files
 .env
