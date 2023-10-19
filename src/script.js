@@ -4,23 +4,19 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import earthVertex from "/shaders/earthVertex.glsl";
 import earthFragment from "/shaders/earthFragment.glsl";
 
-// THREE.ColorManagement.enabled = false;
-
-const canvas = document.querySelector("canvas.webgl");
-
 /* 
-ThreeJS spherical coord system
+ThreeJS spherical coord system:
+  radius - the radius, or the Euclidean distance (straight-line distance) from the point to the origin
+  phi - polar angle in radians from the y (up) axis
+  theta - equator angle in radians around the y (up) axis
 
-radius - the radius, or the Euclidean distance (straight-line distance) from the point to the origin
-phi - polar angle in radians from the y (up) axis
-theta - equator angle in radians around the y (up) axis
-*/
-
-/*
 Positioning assumptions
+  moon radius is 1/4 EARTHRADIUS (approx correct)
+  moon (and camera) positioned around 10 * earth radius from earth location (correct value 60 * EARTHRADIUS)
 
-moon radius is 1/4 EARTHRADIUS (approx correct)
-moon (and camera) positioned around 10 * earth radius from earth location (correct value 60 * EARTHRADIUS)
+Params TODO
+  parameterise everything based on EARTHRADIUS
+  ensure everything is in radians
 */
 
 const degToRad = (x) => x * params.utils.degToRad;
@@ -33,30 +29,35 @@ const params = {
     degToRad: Math.PI / 180,
   },
   camera: {
-    fov: 25, // default 75
-    nearDist: 0.0001,
+    fov: 25,
+    nearDist: 0.01,
     farDist: 1000,
-    radius: 10.05 * EARTHRADIUS,
-    phi: 90,
-    theta: 0,
-    lookAt: new THREE.Vector3(0, 0, 0),
+    cartCoords: {
+      x: 0,
+      y: (EARTHRADIUS / 4) * 1.01,
+      z: EARTHRADIUS * 10
+    }
   },
   earth: {
     sphereRadius: EARTHRADIUS,
     heightSegments: 64,
     widthSegments: 64,
-    radius: EARTHRADIUS * 0.7,
-    // radius: 0,
-    phi: 0,
-    theta: 0,
+    cartCoords: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
   },
   moon: {
     sphereRadius: EARTHRADIUS / 4,
     heightSegments: 256,
     widthSegments: 256,
-    radius: 10 * EARTHRADIUS,
-    phi: 91.46,
-    theta: 0,
+    cartCoords: {
+      x: 0,
+      y: 0,
+      z: 10 * EARTHRADIUS,
+    },
+    zRotation: Math.PI / 2,
   },
   lights: {
     ambLight: {
@@ -66,9 +67,11 @@ const params = {
     dirLight: {
       intensity: 5,
       color: "#FFFAED",
-      radius: 50, // TODO make everything parameterised on the globe radius
-      phi: 300, // TODO switch to radians
-      theta: 60,
+      spherCoords: {
+        radius: 10 * EARTHRADIUS,
+        phi: 10 * (Math.PI / 6),
+        theta: 2 * (Math.PI / 6),
+      },
     },
   },
 };
@@ -78,7 +81,13 @@ const sizes = {
   height: window.innerHeight,
 };
 
+// THREE.ColorManagement.enabled = false;
+
+const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
+const textureLoader = new THREE.TextureLoader();
+
+// *** Camera ***
 
 const camera = new THREE.PerspectiveCamera(
   params.camera.fov,
@@ -87,14 +96,16 @@ const camera = new THREE.PerspectiveCamera(
   params.camera.farDist
 );
 
-camera.position.setFromSphericalCoords(
-  params.camera.radius,
-  degToRad(params.camera.phi),
-  degToRad(params.camera.theta)
+// Position camera (TODO: elegant implementation of alpha angle)
+camera.position.set(
+  params.camera.cartCoords.x,
+  params.camera.cartCoords.y,
+  params.camera.cartCoords.z,
 );
-camera.lookAt(params.camera.lookAt);
 
 scene.add(camera);
+
+// *** Renderer ***
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -104,18 +115,20 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(sizes.width, sizes.height);
 
-// Controls (temporary)
+// *** Controls ***
+
 const controls = new OrbitControls(camera, renderer.domElement);
 
-// Earth
-const textureLoader = new THREE.TextureLoader();
+// *** Earth ***
 
+// Geometry
 const earthGeometry = new THREE.SphereGeometry(
   params.earth.sphereRadius,
   params.earth.widthSegments,
   params.earth.heightSegments
 );
 
+// Material
 const earthTexture = textureLoader.load(
   "/nasa-earth-topo-bathy-july-5400x2700.png"
   // "/land-shallow-topo-2048.jpeg"
@@ -143,58 +156,69 @@ earthMaterial.onBeforeCompile = (shader) => {
   shader.fragmentShader = earthFragment;
 };
 
+// Mesh
 const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
-earthMesh.position.setFromSphericalCoords(
-  params.earth.radius,
-  degToRad(params.earth.phi),
-  degToRad(params.earth.theta)
+
+earthMesh.position.set(
+  params.earth.cartCoords.x,
+  params.earth.cartCoords.y,
+  params.earth.cartCoords.z
 );
 
 scene.add(earthMesh);
 
-// Moon
+// *** Moon ***
+
+// Geometry
 const moonGeometry = new THREE.SphereGeometry(
   params.moon.sphereRadius,
   params.moon.widthSegments,
   params.moon.heightSegments
 );
 
+// Material
 const moonTexture = textureLoader.load("/lroc_color_poles_1k.jpg");
-moonTexture.magFilter = THREE.NearestFilter; // turn off texture pixel interpolation to review true pixellation
+moonTexture.magFilter = THREE.NearestFilter; // turn off texture pixel interpolation to review true pixellation extent
 const moonMaterial = new THREE.MeshBasicMaterial({ map: moonTexture });
 
+// Mesh
 const moonMesh = new THREE.Mesh(moonGeometry, moonMaterial);
-moonMesh.position.setFromSphericalCoords(
-  params.moon.radius,
-  degToRad(params.moon.phi),
-  degToRad(params.moon.theta)
+
+moonMesh.position.set(
+  params.moon.cartCoords.x,
+  params.moon.cartCoords.y,
+  params.moon.cartCoords.z
 );
 
-moonMesh.rotateZ(degToRad(90));
+moonMesh.rotateZ(params.moon.zRotation);
 
-scene.add(moonMesh);
+// scene.add(moonMesh);
 
-// Lights
+// *** Lights ***
+
 const ambLight = new THREE.AmbientLight(
   params.lights.ambLight.color,
   params.lights.ambLight.intensity
 );
+
 scene.add(ambLight);
 
 const dirLight = new THREE.DirectionalLight(
   params.lights.dirLight.color,
   params.lights.dirLight.intensity
 );
+
 dirLight.position.setFromSphericalCoords(
-  params.lights.dirLight.radius,
-  degToRad(params.lights.dirLight.theta),
-  degToRad(params.lights.dirLight.phi)
+  params.lights.dirLight.spherCoords.radius,
+  params.lights.dirLight.spherCoords.theta,
+  params.lights.dirLight.spherCoords.phi
 );
+
 dirLight.target = earthMesh;
 
 scene.add(dirLight);
 
-// Helpers
+// *** Helpers ***
 
 // const axesHelper = new THREE.AxesHelper(params.utils.axesHelperSize);
 // scene.add(axesHelper);
@@ -202,10 +226,11 @@ scene.add(dirLight);
 var stats = new Stats();
 document.body.appendChild(stats.dom);
 
-// const helper = new THREE.DirectionalLightHelper(dirLight, 5);
-// scene.add(helper);
+// const dirLightHelper = new THREE.DirectionalLightHelper(dirLight);
+// scene.add(dirLightHelper);
 
-// Animate
+// *** Animate ***
+
 const animate = function () {
   requestAnimationFrame(animate);
 
