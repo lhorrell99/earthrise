@@ -29,14 +29,15 @@ const params = {
     degToRad: Math.PI / 180,
   },
   camera: {
-    fov: 25,
+    fov: 20,
     nearDist: 0.01,
     farDist: 1000,
-    cartCoords: {
+    moonRelCoords: {
       x: 0,
       y: (EARTHRADIUS / 4) * 1.01,
-      z: EARTHRADIUS * 10
-    }
+      z: 0,
+    },
+    moonPhi: - Math.PI / 75,
   },
   earth: {
     sphereRadius: EARTHRADIUS,
@@ -89,6 +90,15 @@ const textureLoader = new THREE.TextureLoader();
 
 // *** Camera ***
 
+// Setup camera pivot point at moon centre
+const cameraPivot = new THREE.Group();
+
+cameraPivot.position.set(
+  params.moon.cartCoords.x,
+  params.moon.cartCoords.y,
+  params.moon.cartCoords.z
+);
+
 const camera = new THREE.PerspectiveCamera(
   params.camera.fov,
   sizes.width / sizes.height,
@@ -96,14 +106,24 @@ const camera = new THREE.PerspectiveCamera(
   params.camera.farDist
 );
 
-// Position camera (TODO: elegant implementation of alpha angle)
+// Add to pivot group
+cameraPivot.add(camera);
+
+// Position camera (coordinates are relative to the group)
 camera.position.set(
-  params.camera.cartCoords.x,
-  params.camera.cartCoords.y,
-  params.camera.cartCoords.z,
+  params.camera.moonRelCoords.x,
+  params.camera.moonRelCoords.y,
+  params.camera.moonRelCoords.z
 );
 
-scene.add(camera);
+// Add camera to group
+scene.add(cameraPivot);
+
+// cameraPivot.rotateX(params.camera.moonPhi);
+// cameraPivot.rotation.x += 0.00005;
+cameraPivot.rotation.x += params.camera.moonPhi;
+// camera.updateProjectionMatrix();
+// renderer.render(scene, camera);
 
 // *** Renderer ***
 
@@ -114,10 +134,6 @@ const renderer = new THREE.WebGLRenderer({
 
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(sizes.width, sizes.height);
-
-// *** Controls ***
-
-const controls = new OrbitControls(camera, renderer.domElement);
 
 // *** Earth ***
 
@@ -141,45 +157,14 @@ const earthMaterial = new THREE.MeshPhysicalMaterial({
   roughness: 0.8,
 });
 
-earthMaterial.onBeforeCompile = (t) => {
-  t.uniforms.shadowDist = { value: 1.5 * params.globeRadius };
-  t.uniforms.highlightDist = { value: 5 };
-  t.uniforms.shadowPoint = {
-    value: new THREE.Vector3(
-      0.7 * params.globeRadius,
-      0.3 * -params.globeRadius,
-      params.globeRadius
-    ),
-  };
-  t.uniforms.highlightPoint = { value: new THREE.Vector3(1.5 * -params.globeRadius, 1.5 * -params.globeRadius, 0) };
-  t.uniforms.frontPoint = { value: new THREE.Vector3(0, 0, params.globeRadius) };
-  t.uniforms.highlightColor = { value: new THREE.Color("#517966") };
-  t.uniforms.frontHighlightColor = { value: new THREE.Color("#27367D") };
-  t.vertexShader = earthVertex
-  t.fragmentShader = earthFragment
+earthMaterial.defines = {};
+
+earthMaterial.onBeforeCompile = (shader) => {
+  // console.log(shader)
+
+  shader.vertexShader = earthVertex;
+  shader.fragmentShader = earthFragment;
 };
-
-earthMaterial.defines = {
-  USE_HIGHLIGHT: 1,
-  USE_HIGHLIGHT_ALT: 1,
-  USE_FRONT_HIGHLIGHT: 1,
-  DITHERING: 1,
-}
-
-// earthMaterial.defines = {
-//   // USE_TRANSMISSION: 1,
-//   // USE_HIGHLIGHT: 1,
-//   // USE_HIGHLIGHT_ALT: 1,
-//   // USE_FRONT_HIGHLIGHT: 1,
-//   // DITHERING: 1,
-// };
-
-// earthMaterial.onBeforeCompile = (shader) => {
-//   // console.log(shader)
-
-//   shader.vertexShader = earthVertex;
-//   shader.fragmentShader = earthFragment;
-// };
 
 // Mesh
 const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
@@ -217,7 +202,7 @@ moonMesh.position.set(
 
 moonMesh.rotateZ(params.moon.zRotation);
 
-// scene.add(moonMesh);
+scene.add(moonMesh);
 
 // *** Lights ***
 
@@ -264,6 +249,7 @@ const animate = function () {
   renderer.render(scene, camera);
   earthMesh.rotation.y += 0.001;
   moonMesh.rotation.x += 0.00005;
+  // cameraPivot.rotation.x += 0.00005;
   stats.end();
 };
 
