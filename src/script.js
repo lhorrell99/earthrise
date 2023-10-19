@@ -62,7 +62,7 @@ const params = {
   },
   lights: {
     ambLight: {
-      intensity: 0.4,
+      intensity: 0.3,
       color: "#FFFFFF",
     },
     dirLight: {
@@ -177,6 +177,40 @@ earthMesh.position.set(
 
 scene.add(earthMesh);
 
+// *** Earth Clouds ***
+
+// Geometry
+const cloudGeometry = new THREE.SphereGeometry(
+  params.earth.sphereRadius * 1.005,
+  params.earth.widthSegments,
+  params.earth.heightSegments
+);
+
+// Material
+const cloudTexture = textureLoader.load(
+  "/cloud-combined-2048.jpeg"
+);
+
+const cloudMaterial = new THREE.MeshPhysicalMaterial({
+  colour: "#FFFFFF",
+  metalness: 0,
+  roughness: 0.8,
+  alphaMap: cloudTexture,
+  transparent: true
+});
+
+// Mesh
+const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
+
+cloudMesh.position.set(
+  params.earth.cartCoords.x,
+  params.earth.cartCoords.y,
+  params.earth.cartCoords.z
+);
+
+scene.add(cloudMesh);
+
+
 // *** Moon ***
 
 // Geometry
@@ -187,7 +221,7 @@ const moonGeometry = new THREE.SphereGeometry(
 );
 
 // Material
-const moonTexture = textureLoader.load("/lroc_color_poles_1k.jpg");
+const moonTexture = textureLoader.load("/lroc-color-poles-1k.jpg");
 moonTexture.magFilter = THREE.NearestFilter; // turn off texture pixel interpolation to review true pixellation extent
 const moonMaterial = new THREE.MeshBasicMaterial({ map: moonTexture });
 
@@ -248,6 +282,7 @@ const animate = function () {
 
   renderer.render(scene, camera);
   earthMesh.rotation.y += 0.001;
+  cloudMesh.rotation.y -= 0.0005;
   moonMesh.rotation.x += 0.00005;
   // cameraPivot.rotation.x += 0.00005;
   stats.end();
