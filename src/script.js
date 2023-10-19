@@ -141,20 +141,45 @@ const earthMaterial = new THREE.MeshPhysicalMaterial({
   roughness: 0.8,
 });
 
+earthMaterial.onBeforeCompile = (t) => {
+  t.uniforms.shadowDist = { value: 1.5 * params.globeRadius };
+  t.uniforms.highlightDist = { value: 5 };
+  t.uniforms.shadowPoint = {
+    value: new THREE.Vector3(
+      0.7 * params.globeRadius,
+      0.3 * -params.globeRadius,
+      params.globeRadius
+    ),
+  };
+  t.uniforms.highlightPoint = { value: new THREE.Vector3(1.5 * -params.globeRadius, 1.5 * -params.globeRadius, 0) };
+  t.uniforms.frontPoint = { value: new THREE.Vector3(0, 0, params.globeRadius) };
+  t.uniforms.highlightColor = { value: new THREE.Color("#517966") };
+  t.uniforms.frontHighlightColor = { value: new THREE.Color("#27367D") };
+  t.vertexShader = earthVertex
+  t.fragmentShader = earthFragment
+};
+
 earthMaterial.defines = {
-  // USE_TRANSMISSION: 1,
-  // USE_HIGHLIGHT: 1,
-  // USE_HIGHLIGHT_ALT: 1,
-  // USE_FRONT_HIGHLIGHT: 1,
-  // DITHERING: 1,
-};
+  USE_HIGHLIGHT: 1,
+  USE_HIGHLIGHT_ALT: 1,
+  USE_FRONT_HIGHLIGHT: 1,
+  DITHERING: 1,
+}
 
-earthMaterial.onBeforeCompile = (shader) => {
-  // console.log(shader)
+// earthMaterial.defines = {
+//   // USE_TRANSMISSION: 1,
+//   // USE_HIGHLIGHT: 1,
+//   // USE_HIGHLIGHT_ALT: 1,
+//   // USE_FRONT_HIGHLIGHT: 1,
+//   // DITHERING: 1,
+// };
 
-  shader.vertexShader = earthVertex;
-  shader.fragmentShader = earthFragment;
-};
+// earthMaterial.onBeforeCompile = (shader) => {
+//   // console.log(shader)
+
+//   shader.vertexShader = earthVertex;
+//   shader.fragmentShader = earthFragment;
+// };
 
 // Mesh
 const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
