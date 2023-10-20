@@ -61,6 +61,15 @@ uniform float opacity;
 	#endif
 #endif
 
+// *** Custom code ***
+
+// varying vec3 vNormalCustom;
+varying vec3 vViewDirection;
+
+uniform vec3 highlightColor;
+uniform float fresnelPower;
+
+// *******************
 varying vec3 vViewPosition;
 
 #include <common>
@@ -151,6 +160,19 @@ void main() {
 		outgoingLight = outgoingLight * ( 1.0 - material.clearcoat * Fcc ) + ( clearcoatSpecularDirect + clearcoatSpecularIndirect ) * material.clearcoat;
 
 	#endif
+
+	// *** Custom code ***
+
+	// Fresnel effect 
+
+	vec3 N = normalize(vNormal);
+    vec3 V = normalize(vViewDirection);
+
+    float fresnelFactor = pow(1.0 - dot(V, N), fresnelPower);
+    
+	outgoingLight = mix(outgoingLight.rgb, highlightColor, fresnelFactor);
+
+	// *******************
 
 	#include <opaque_fragment>
 	#include <tonemapping_fragment>

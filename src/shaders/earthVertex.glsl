@@ -20,8 +20,14 @@ varying vec3 vViewPosition;
 #include <logdepthbuf_pars_vertex>
 #include <clipping_planes_pars_vertex>
 
-void main() {
+// *** Custom Code ***
 
+// varying vec3 vNormalCustom;
+varying vec3 vViewDirection;
+
+// *******************
+
+void main() {
 	#include <uv_vertex>
 	#include <color_vertex>
 	#include <morphcolor_vertex>
@@ -47,6 +53,12 @@ void main() {
 	#include <shadowmap_vertex>
 	#include <fog_vertex>
 
+	// *** Custom code ***
+
+	// vNormalCustom = normalize(normalMatrix * normal);
+    vViewDirection = -mvPosition.xyz;
+
+	// *******************
 #ifdef USE_TRANSMISSION
 
 	vWorldPosition = worldPosition.xyz;

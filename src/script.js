@@ -152,6 +152,7 @@ const earthTexture = textureLoader.load(
 );
 
 const earthMaterial = new THREE.MeshPhysicalMaterial({
+  // color: "#000154",
   map: earthTexture,
   metalness: 0,
   roughness: 0.8,
@@ -161,6 +162,8 @@ earthMaterial.defines = {};
 
 earthMaterial.onBeforeCompile = (shader) => {
   // console.log(shader)
+  shader.uniforms.highlightColor = { value: new THREE.Color("#4287f5") };
+  shader.uniforms.fresnelPower = { value: 5 };
 
   shader.vertexShader = earthVertex;
   shader.fragmentShader = earthFragment;
@@ -209,7 +212,6 @@ cloudMesh.position.set(
 );
 
 scene.add(cloudMesh);
-
 
 // *** Moon ***
 
@@ -282,7 +284,7 @@ const animate = function () {
 
   renderer.render(scene, camera);
   earthMesh.rotation.y += 0.001;
-  cloudMesh.rotation.y -= 0.0005;
+  // cloudMesh.rotation.y -= 0.0005;
   moonMesh.rotation.x += 0.00005;
   // cameraPivot.rotation.x += 0.00005;
   stats.end();
