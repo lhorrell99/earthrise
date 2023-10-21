@@ -4,6 +4,8 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RectAreaLightHelper } from "three/addons/helpers/RectAreaLightHelper.js";
 import earthVertex from "/shaders/earthVertex.glsl";
 import earthFragment from "/shaders/earthFragment.glsl";
+import atmosphereVertex from "/shaders/atmosphereVertex.glsl";
+import atmosphereFragment from "/shaders/atmosphereFragment.glsl";
 
 /* 
 ThreeJS spherical coord system:
@@ -208,6 +210,27 @@ cloudMesh.position.set(
 );
 
 // scene.add(cloudMesh);
+
+// *** Atmosphere ***
+
+// Geometry
+const atmoGeometry = new THREE.SphereGeometry(5, 64, 64);
+
+// Material
+const atmoMaterial = new THREE.ShaderMaterial({
+  vertexShader: atmosphereVertex,
+  fragmentShader: atmosphereFragment,
+  blending: THREE.AdditiveBlending,
+  side: THREE.BackSide,
+});
+
+// Mesh
+const atmoMesh = new THREE.Mesh(atmoGeometry, atmoMaterial);
+
+atmoMesh.scale.set(1.1, 1.1, 1.1);
+scene.add(atmoMesh);
+
+// ******************
 
 // *** Moon ***
 
