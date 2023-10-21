@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import Stats from "three/addons/libs/stats.module.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RectAreaLightHelper } from "three/addons/helpers/RectAreaLightHelper.js";
 import earthVertex from "/shaders/earthVertex.glsl";
 import earthFragment from "/shaders/earthFragment.glsl";
 
@@ -159,7 +160,7 @@ earthMaterial.defines = {
 };
 
 earthMaterial.onBeforeCompile = (shader) => {
-  shader.uniforms.highlightColor = { value: new THREE.Color("#4287f5") };
+  shader.uniforms.highlightColor = { value: new THREE.Color("#4287f5") }; // TODO rename
   shader.uniforms.fresnelPower = { value: 7 }; // higher = lower power
 
   shader.vertexShader = earthVertex;
@@ -187,16 +188,14 @@ const cloudGeometry = new THREE.SphereGeometry(
 );
 
 // Material
-const cloudTexture = textureLoader.load(
-  "/cloud-combined-2048.jpeg"
-);
+const cloudTexture = textureLoader.load("/cloud-combined-2048.jpeg");
 
 const cloudMaterial = new THREE.MeshPhysicalMaterial({
   color: "#FFFFFF",
   metalness: 0,
   roughness: 0.8,
   alphaMap: cloudTexture,
-  transparent: true
+  transparent: true,
 });
 
 // Mesh
@@ -261,16 +260,43 @@ dirLight.target = earthMesh;
 
 scene.add(dirLight);
 
-// *** Helpers ***
+const rectAreaLight = new THREE.RectAreaLight("#f5dcc9", 13, 1.5, 5);
 
-// const axesHelper = new THREE.AxesHelper(params.utils.axesHelperSize);
-// scene.add(axesHelper);
+rectAreaLight.position.setFromSphericalCoords(
+  EARTHRADIUS * 1.3,
+  Math.PI / 2,
+  (22.5 / 12) * Math.PI
+);
+
+rectAreaLight.lookAt(0, 0, 0);
+
+scene.add(rectAreaLight);
+
+// const spotlightA = new THREE.SpotLight("#4287f5", 200, 100, (2/12) * Math.PI, 0.5, 1.1); // color, intensity, distance, angle, penumbra, decay
+// spotlightA.position.setFromSphericalCoords(
+//   5 * EARTHRADIUS,
+//   (2/6) * Math.PI,
+//   (8/6) * Math.PI
+// );
+// spotlightA.target = earthMesh;
+// scene.add(spotlightA);
+
+// *** Helpers ***
 
 var stats = new Stats();
 document.body.appendChild(stats.dom);
 
+// const axesHelper = new THREE.AxesHelper(params.utils.axesHelperSize);
+// scene.add(axesHelper);
+
 // const dirLightHelper = new THREE.DirectionalLightHelper(dirLight);
 // scene.add(dirLightHelper);
+
+// const rectAreaLightHelper = new RectAreaLightHelper(rectAreaLight);
+// rectAreaLight.add(rectAreaLightHelper);
+
+// const spotlightHelper = new THREE.SpotLightHelper(spotlightA);
+// scene.add(spotlightHelper);
 
 // *** Animate ***
 
