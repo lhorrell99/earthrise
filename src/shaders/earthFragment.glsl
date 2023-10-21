@@ -63,13 +63,13 @@ uniform float opacity;
 
 // *** Custom code ***
 
-// varying vec3 vNormalCustom;
-varying vec3 vViewDirection;
-
-uniform vec3 highlightColor;
-uniform float fresnelPower;
+#ifdef FRESNEL_EFFECT
+	uniform vec3 highlightColor;
+	uniform float fresnelPower;
+#endif
 
 // *******************
+
 varying vec3 vViewPosition;
 
 #include <common>
@@ -164,13 +164,14 @@ void main() {
 	// *** Custom code ***
 
 	// Fresnel effect 
+	# ifdef FRESNEL_EFFECT
+		vec3 N = normalize(vNormal);
+		vec3 V = normalize(vViewPosition);
 
-	vec3 N = normalize(vNormal);
-    vec3 V = normalize(vViewDirection);
-
-    float fresnelFactor = pow(1.0 - dot(V, N), fresnelPower);
-    
-	outgoingLight = mix(outgoingLight.rgb, highlightColor, fresnelFactor);
+		float fresnelFactor = pow(1.0 - dot(V, N), fresnelPower);
+		
+		outgoingLight = mix(outgoingLight.rgb, highlightColor, fresnelFactor);
+	# endif
 
 	// *******************
 

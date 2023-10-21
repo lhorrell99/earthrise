@@ -37,7 +37,7 @@ const params = {
       y: (EARTHRADIUS / 4) * 1.01,
       z: 0,
     },
-    moonPhi: - Math.PI / 75,
+    moonPhi: -Math.PI / 75,
   },
   earth: {
     sphereRadius: EARTHRADIUS,
@@ -62,16 +62,16 @@ const params = {
   },
   lights: {
     ambLight: {
-      intensity: 0.3,
+      intensity: 0.6,
       color: "#FFFFFF",
     },
     dirLight: {
-      intensity: 5,
+      intensity: 3,
       color: "#FFFAED",
       spherCoords: {
         radius: 10 * EARTHRADIUS,
-        phi: 10 * (Math.PI / 6),
-        theta: 2 * (Math.PI / 6),
+        phi: 2 * (Math.PI / 6),
+        theta: 10 * (Math.PI / 6),
       },
     },
   },
@@ -119,11 +119,7 @@ camera.position.set(
 // Add camera to group
 scene.add(cameraPivot);
 
-// cameraPivot.rotateX(params.camera.moonPhi);
-// cameraPivot.rotation.x += 0.00005;
 cameraPivot.rotation.x += params.camera.moonPhi;
-// camera.updateProjectionMatrix();
-// renderer.render(scene, camera);
 
 // *** Renderer ***
 
@@ -152,18 +148,19 @@ const earthTexture = textureLoader.load(
 );
 
 const earthMaterial = new THREE.MeshPhysicalMaterial({
-  // color: "#000154",
-  map: earthTexture,
+  color: "#000154",
+  // map: earthTexture,
   metalness: 0,
   roughness: 0.8,
 });
 
-earthMaterial.defines = {};
+earthMaterial.defines = {
+  FRESNEL_EFFECT: true,
+};
 
 earthMaterial.onBeforeCompile = (shader) => {
-  // console.log(shader)
   shader.uniforms.highlightColor = { value: new THREE.Color("#4287f5") };
-  shader.uniforms.fresnelPower = { value: 5 };
+  shader.uniforms.fresnelPower = { value: 7 }; // higher = lower power
 
   shader.vertexShader = earthVertex;
   shader.fragmentShader = earthFragment;
@@ -195,7 +192,7 @@ const cloudTexture = textureLoader.load(
 );
 
 const cloudMaterial = new THREE.MeshPhysicalMaterial({
-  colour: "#FFFFFF",
+  color: "#FFFFFF",
   metalness: 0,
   roughness: 0.8,
   alphaMap: cloudTexture,
@@ -211,7 +208,7 @@ cloudMesh.position.set(
   params.earth.cartCoords.z
 );
 
-scene.add(cloudMesh);
+// scene.add(cloudMesh);
 
 // *** Moon ***
 
@@ -256,8 +253,8 @@ const dirLight = new THREE.DirectionalLight(
 
 dirLight.position.setFromSphericalCoords(
   params.lights.dirLight.spherCoords.radius,
-  params.lights.dirLight.spherCoords.theta,
-  params.lights.dirLight.spherCoords.phi
+  params.lights.dirLight.spherCoords.phi,
+  params.lights.dirLight.spherCoords.theta
 );
 
 dirLight.target = earthMesh;
@@ -284,9 +281,7 @@ const animate = function () {
 
   renderer.render(scene, camera);
   earthMesh.rotation.y += 0.001;
-  // cloudMesh.rotation.y -= 0.0005;
   moonMesh.rotation.x += 0.00005;
-  // cameraPivot.rotation.x += 0.00005;
   stats.end();
 };
 
