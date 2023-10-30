@@ -6,6 +6,7 @@ import earthVertex from "/shaders/earthVertex.glsl";
 import earthFragment from "/shaders/earthFragment.glsl";
 import atmosphereVertex from "/shaders/atmosphereVertex.glsl";
 import atmosphereFragment from "/shaders/atmosphereFragment.glsl";
+import Hexasphere from "/hexasphere-src/hexasphere";
 
 /* 
 ThreeJS spherical coord system:
@@ -152,8 +153,8 @@ const earthTexture = textureLoader.load(
 );
 
 const earthMaterial = new THREE.MeshPhysicalMaterial({
-  // color: "#000154",
-  map: earthTexture,
+  color: "#000154",
+  // map: earthTexture,
   metalness: 0,
   roughness: 0.8,
 });
@@ -170,7 +171,7 @@ earthMaterial.onBeforeCompile = (shader) => {
   shader.fragmentShader = earthFragment;
 };
 
-// Mesh
+// // Mesh
 const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
 
 earthMesh.position.set(
@@ -179,7 +180,26 @@ earthMesh.position.set(
   params.earth.cartCoords.z
 );
 
-scene.add(earthMesh);
+const radius = 5; // Radius used to calculate position of tiles
+const subDivisions = 5; // Divide each edge of the icosohedron into this many segments
+const tileWidth = 0.9; // Add padding (1.0 = no padding; 0.1 = mostly padding)
+
+const hexasphere = new Hexasphere(radius, subDivisions, tileWidth);
+
+hexasphere.tiles.forEach((tile) => {
+  const verticesList = [];
+
+  tile.boundary.forEach((vertex) => {
+    verticesList.push(vertex.x, vertex.y, vertex.z);
+  });
+
+  const vertices = new Float32Array(verticesList);
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+
+  const mesh = new THREE.Mesh(geometry, earthMaterial);
+  scene.add(mesh)
+});
 
 // *** Earth Clouds ***
 
@@ -210,7 +230,7 @@ cloudMesh.position.set(
   params.earth.cartCoords.z
 );
 
-scene.add(cloudMesh);
+// scene.add(cloudMesh);
 
 // *** Atmosphere ***
 
@@ -229,7 +249,7 @@ const atmoMaterial = new THREE.ShaderMaterial({
 const atmoMesh = new THREE.Mesh(atmoGeometry, atmoMaterial);
 
 atmoMesh.scale.set(1.1, 1.1, 1.1);
-scene.add(atmoMesh);
+// scene.add(atmoMesh);
 
 // ******************
 
