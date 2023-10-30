@@ -145,14 +145,15 @@ const earthGeometry = new THREE.SphereGeometry(
 
 // Material
 const earthTexture = textureLoader.load(
+  // "/plain-blue.png",
   "/nasa-earth-topo-bathy-july-5400x2700.png"
   // "/land-shallow-topo-2048.jpeg"
   // "/opencv-draft-2023-10-17.png"
 );
 
 const earthMaterial = new THREE.MeshPhysicalMaterial({
-  color: "#000154",
-  // map: earthTexture,
+  // color: "#000154",
+  map: earthTexture,
   metalness: 0,
   roughness: 0.8,
 });
@@ -209,7 +210,7 @@ cloudMesh.position.set(
   params.earth.cartCoords.z
 );
 
-// scene.add(cloudMesh);
+scene.add(cloudMesh);
 
 // *** Atmosphere ***
 
