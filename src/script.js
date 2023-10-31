@@ -138,11 +138,12 @@ renderer.setSize(sizes.width, sizes.height);
 // *** Earth ***
 
 // Geometry
-const earthGeometry = new THREE.SphereGeometry(
-  params.earth.sphereRadius,
-  params.earth.widthSegments,
-  params.earth.heightSegments
-);
+
+// const earthGeometry = new THREE.SphereGeometry(
+//   params.earth.sphereRadius,
+//   params.earth.widthSegments,
+//   params.earth.heightSegments
+// );
 
 // Material
 const earthTexture = textureLoader.load(
@@ -157,6 +158,7 @@ const earthMaterial = new THREE.MeshPhysicalMaterial({
   // map: earthTexture,
   metalness: 0,
   roughness: 0.8,
+  // side: THREE.DoubleSide, // temp for vertex debugging
 });
 
 earthMaterial.defines = {
@@ -172,34 +174,118 @@ earthMaterial.onBeforeCompile = (shader) => {
 };
 
 // // Mesh
-const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+// const earthGroup = new THREE.Mesh(earthGeometry, earthMaterial);
 
-earthMesh.position.set(
+const earthGroup = new THREE.Group();
+
+earthGroup.position.set(
   params.earth.cartCoords.x,
   params.earth.cartCoords.y,
   params.earth.cartCoords.z
 );
 
-const radius = 5; // Radius used to calculate position of tiles
-const subDivisions = 5; // Divide each edge of the icosohedron into this many segments
-const tileWidth = 0.9; // Add padding (1.0 = no padding; 0.1 = mostly padding)
+scene.add(earthGroup)
 
-const hexasphere = new Hexasphere(radius, subDivisions, tileWidth);
+const subDivisions = 20; // Divide each edge of the icosohedron into this many segments
+const tileWidth = 1; // Add padding (1.0 = no padding; 0.1 = mostly padding)
 
-hexasphere.tiles.forEach((tile) => {
-  const verticesList = [];
+const hexasphere = new Hexasphere(EARTHRADIUS, subDivisions, tileWidth);
 
-  tile.boundary.forEach((vertex) => {
-    verticesList.push(vertex.x, vertex.y, vertex.z);
-  });
+// console.log(hexasphere);
 
-  const vertices = new Float32Array(verticesList);
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+let imageCanvas;
+let imageContext;
 
-  const mesh = new THREE.Mesh(geometry, earthMaterial);
-  scene.add(mesh)
-});
+const loader = new THREE.ImageLoader();
+loader.load(
+  // "/plain-blue.png",
+  "/nasa-earth-topo-bathy-july-5400x2700.png",
+  // "/land-shallow-topo-2048.jpeg",
+  // "/opencv-draft-2023-10-17.png",
+  function (image) {
+    imageCanvas = document.createElement("canvas");
+    imageCanvas.width = image.width;
+    imageCanvas.height = image.height;
+    imageContext = imageCanvas.getContext("2d");
+    imageContext.drawImage(image, 0, 0, image.width, image.height);
+
+    /**
+     * Gets the color at a specific latitude and longitude from an image representing a sphere.
+     *
+     * @param {number} lat - The latitude in degrees. Ranges from -90 to 90.
+     * @param {number} lon - The longitude in degrees. Ranges from -180 to 180.
+     * @returns {Array} An array representing the RGB color.
+     */
+
+    function getColorAtLatLon(lat, lon) {
+      // Map latitude and longitude to x and y coordinates on the image
+      const x = Math.floor(((lon + 180) / 360) * imageCanvas.width);
+      const y = Math.floor(((90 + lat) / 180) * imageCanvas.height);
+
+      // Read the pixel color at x, y from the canvas
+      const pixel = imageContext.getImageData(x, y, 1, 1).data;
+
+      // The color is in the format (R, G, B, A), we'll return just (R, G, B)
+      return [pixel[0], pixel[1], pixel[2]];
+    }
+
+    hexasphere.tiles.forEach((tile) => {
+      const verticesList = [];
+      const latLon = tile.getLatLon(hexasphere.radius);
+
+      tile.boundary.forEach((vertex) => {
+        verticesList.push(vertex.x, vertex.y, vertex.z);
+      });
+
+      // Add the start point again
+      verticesList.push(
+        tile.boundary[0].x,
+        tile.boundary[0].y,
+        tile.boundary[0].z
+      );
+
+      const vertices = new Float32Array(verticesList);
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+
+      // Index array to define the triangles
+      const indicesList = [
+        0, // first triangle
+        1,
+        2,
+        0, // second triangle
+        2,
+        3,
+        0, // third triangle
+        3,
+        4,
+      ];
+
+      // Hacky way to extend for hexagons (TODO, function)
+      if (tile.boundary.length > 5) {
+        indicesList.push(0, 4, 5);
+      }
+
+      const indices = new Uint16Array(indicesList);
+      geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+      geometry.computeVertexNormals();
+
+      const colorValues = getColorAtLatLon(latLon.lat, latLon.lon);
+
+      const color = new THREE.Color(
+        `rgb(${colorValues[0]}, ${colorValues[1]}, ${colorValues[2]})`
+      );
+
+      const fragMaterial = earthMaterial.clone();
+      fragMaterial.color = color;
+
+      const mesh = new THREE.Mesh(geometry, fragMaterial);
+
+      earthGroup.add(mesh)
+      // scene.add(mesh);
+    });
+  }
+);
 
 // *** Earth Clouds ***
 
@@ -300,7 +386,7 @@ dirLight.position.setFromSphericalCoords(
   params.lights.dirLight.spherCoords.theta
 );
 
-dirLight.target = earthMesh;
+dirLight.target = earthGroup;
 
 scene.add(dirLight);
 
@@ -322,7 +408,7 @@ scene.add(rectAreaLight);
 //   (2/6) * Math.PI,
 //   (8/6) * Math.PI
 // );
-// spotlightA.target = earthMesh;
+// spotlightA.target = earthGroup;
 // scene.add(spotlightA);
 
 // *** Helpers ***
@@ -350,7 +436,7 @@ const animate = function () {
   stats.begin();
 
   renderer.render(scene, camera);
-  earthMesh.rotation.y += 0.001;
+  earthGroup.rotation.y += 0.001;
   moonMesh.rotation.x += 0.00005;
   stats.end();
 };
