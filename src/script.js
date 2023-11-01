@@ -7,6 +7,7 @@ import earthFragment from "/shaders/earthFragment.glsl";
 import atmosphereVertex from "/shaders/atmosphereVertex.glsl";
 import atmosphereFragment from "/shaders/atmosphereFragment.glsl";
 import Hexasphere from "/hexasphere-src/hexasphere";
+import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
 /* 
 ThreeJS spherical coord system:
@@ -176,7 +177,7 @@ earthMaterial.onBeforeCompile = (shader) => {
 // // Mesh
 // const earthGroup = new THREE.Mesh(earthGeometry, earthMaterial);
 
-const earthGroup = new THREE.Group();
+let earthGroup = new THREE.Group();
 
 earthGroup.position.set(
   params.earth.cartCoords.x,
@@ -186,7 +187,7 @@ earthGroup.position.set(
 
 scene.add(earthGroup)
 
-const subDivisions = 20; // Divide each edge of the icosohedron into this many segments
+const subDivisions = 15; // Divide each edge of the icosohedron into this many segments
 const tileWidth = 1; // Add padding (1.0 = no padding; 0.1 = mostly padding)
 
 const hexasphere = new Hexasphere(EARTHRADIUS, subDivisions, tileWidth);
@@ -284,6 +285,9 @@ loader.load(
       earthGroup.add(mesh)
       // scene.add(mesh);
     });
+
+    earthGroup = BufferGeometryUtils.mergeVertices( earthGroup );
+  
   }
 );
 
@@ -297,7 +301,10 @@ const cloudGeometry = new THREE.SphereGeometry(
 );
 
 // Material
-const cloudTexture = textureLoader.load("/cloud-combined-2048.jpeg");
+const cloudTexture = textureLoader.load(
+  // "/cloud-combined-2048.jpeg"
+  "/cloud-combined-2048-gaussian-blurred.png"
+  );
 
 const cloudMaterial = new THREE.MeshPhysicalMaterial({
   color: "#FFFFFF",
@@ -316,7 +323,7 @@ cloudMesh.position.set(
   params.earth.cartCoords.z
 );
 
-// scene.add(cloudMesh);
+scene.add(cloudMesh);
 
 // *** Atmosphere ***
 
@@ -335,7 +342,7 @@ const atmoMaterial = new THREE.ShaderMaterial({
 const atmoMesh = new THREE.Mesh(atmoGeometry, atmoMaterial);
 
 atmoMesh.scale.set(1.1, 1.1, 1.1);
-// scene.add(atmoMesh);
+scene.add(atmoMesh);
 
 // ******************
 
@@ -438,6 +445,7 @@ const animate = function () {
   renderer.render(scene, camera);
   earthGroup.rotation.y += 0.001;
   moonMesh.rotation.x += 0.00005;
+  cloudMesh.rotation.y += 0.0015;
   stats.end();
 };
 
