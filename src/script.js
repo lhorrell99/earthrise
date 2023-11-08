@@ -1,5 +1,1 @@
-import Experience from "./Experience/Experience.js";
-
-window.experience = new Experience({
-  targetElement: document.querySelector(".experience"),
-});
+import Experience from "./experience/experience";
