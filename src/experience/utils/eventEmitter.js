@@ -1,12 +1,21 @@
-export default class {
+/*
+Credit: github.com/brunosimon
+Enables classes to broadcast events
+Note: still requires one class that listens to the native JS event (e.g. sizes listens for a "resize")
+
+Example uses:
+  - animation has finished
+  - object has been clicked
+  - resources are loaded
+*/
+
+export default class EventEmitter {
   constructor() {
     this.callbacks = {};
     this.callbacks.base = {};
   }
 
   on(_names, callback) {
-    const that = this;
-
     // Errors
     if (typeof _names === "undefined" || _names === "") {
       console.warn("wrong names");
@@ -21,29 +30,26 @@ export default class {
     // Resolve names
     const names = this.resolveNames(_names);
 
-    // Each name
-    names.forEach(function (_name) {
+    names.forEach((_name) => {
       // Resolve name
-      const name = that.resolveName(_name);
+      const name = this.resolveName(_name);
 
-      // Create namespace if it doesn't exist
-      if (!(that.callbacks[name.namespace] instanceof Object))
-        that.callbacks[name.namespace] = {};
+      // Create namespace if doesn't exist
+      if (!(this.callbacks[name.namespace] instanceof Object))
+        this.callbacks[name.namespace] = {};
 
-      // Create callback if it doesn't exist
-      if (!(that.callbacks[name.namespace][name.value] instanceof Array))
-        that.callbacks[name.namespace][name.value] = [];
+      // Create callback if doesn't exist
+      if (!(this.callbacks[name.namespace][name.value] instanceof Array))
+        this.callbacks[name.namespace][name.value] = [];
 
       // Add callback
-      that.callbacks[name.namespace][name.value].push(callback);
+      this.callbacks[name.namespace][name.value].push(callback);
     });
 
     return this;
   }
 
   off(_names) {
-    const that = this;
-
     // Errors
     if (typeof _names === "undefined" || _names === "") {
       console.warn("wrong name");
@@ -53,13 +59,13 @@ export default class {
     // Resolve names
     const names = this.resolveNames(_names);
 
-    names.forEach(function (_name) {
+    names.forEach((_name) => {
       // Resolve name
-      const name = that.resolveName(_name);
+      const name = this.resolveName(_name);
 
       // Remove namespace
       if (name.namespace !== "base" && name.value === "") {
-        delete that.callbacks[name.namespace];
+        delete this.callbacks[name.namespace];
       }
 
       // Remove specific callback in namespace
@@ -67,30 +73,30 @@ export default class {
         // Default
         if (name.namespace === "base") {
           // Try to remove from each namespace
-          for (const namespace in that.callbacks) {
+          for (const namespace in this.callbacks) {
             if (
-              that.callbacks[namespace] instanceof Object &&
-              that.callbacks[namespace][name.value] instanceof Array
+              this.callbacks[namespace] instanceof Object &&
+              this.callbacks[namespace][name.value] instanceof Array
             ) {
-              delete that.callbacks[namespace][name.value];
+              delete this.callbacks[namespace][name.value];
 
               // Remove namespace if empty
-              if (Object.keys(that.callbacks[namespace]).length === 0)
-                delete that.callbacks[namespace];
+              if (Object.keys(this.callbacks[namespace]).length === 0)
+                delete this.callbacks[namespace];
             }
           }
         }
 
         // Specified namespace
         else if (
-          that.callbacks[name.namespace] instanceof Object &&
-          that.callbacks[name.namespace][name.value] instanceof Array
+          this.callbacks[name.namespace] instanceof Object &&
+          this.callbacks[name.namespace][name.value] instanceof Array
         ) {
-          delete that.callbacks[name.namespace][name.value];
+          delete this.callbacks[name.namespace][name.value];
 
           // Remove namespace if empty
-          if (Object.keys(that.callbacks[name.namespace]).length === 0)
-            delete that.callbacks[name.namespace];
+          if (Object.keys(this.callbacks[name.namespace]).length === 0)
+            delete this.callbacks[name.namespace];
         }
       }
     });
@@ -105,7 +111,6 @@ export default class {
       return false;
     }
 
-    const that = this;
     let finalResult = null;
     let result = null;
 
@@ -121,13 +126,13 @@ export default class {
     // Default namespace
     if (name.namespace === "base") {
       // Try to find callback in each namespace
-      for (const namespace in that.callbacks) {
+      for (const namespace in this.callbacks) {
         if (
-          that.callbacks[namespace] instanceof Object &&
-          that.callbacks[namespace][name.value] instanceof Array
+          this.callbacks[namespace] instanceof Object &&
+          this.callbacks[namespace][name.value] instanceof Array
         ) {
-          that.callbacks[namespace][name.value].forEach(function (callback) {
-            result = callback.apply(that, args);
+          this.callbacks[namespace][name.value].forEach(function (callback) {
+            result = callback.apply(this, args);
 
             if (typeof finalResult === "undefined") {
               finalResult = result;
@@ -144,8 +149,8 @@ export default class {
         return this;
       }
 
-      that.callbacks[name.namespace][name.value].forEach(function (callback) {
-        result = callback.apply(that, args);
+      this.callbacks[name.namespace][name.value].forEach(function (callback) {
+        result = callback.apply(this, args);
 
         if (typeof finalResult === "undefined") finalResult = result;
       });
@@ -169,6 +174,8 @@ export default class {
 
     newName.original = name;
     newName.value = parts[0];
+
+    // Base namespace
     newName.namespace = "base";
 
     // Specified namespace
