@@ -1,7 +1,7 @@
 export default [
   {
-      name: 'foxModel',
-      type: 'gltfModel',
-      path: 'models/Fox/glTF/Fox.gltf'
-  }
-]
+    name: "earthTopoBathyTexture",
+    source: "/assets/nasa-earth-topo-bathy-july-5400x2700.png",
+    type: "texture",
+  },
+];

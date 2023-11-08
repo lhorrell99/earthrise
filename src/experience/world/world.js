@@ -6,16 +6,12 @@ export default class World {
   constructor() {
     this.experience = new Experience();
     this.scene = this.experience.scene;
+    this.resources = this.experience.resources
 
-    const testMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(5, 32, 32),
-      new THREE.MeshBasicMaterial({ wireframe: true })
-    );
-
-    this.scene.add(testMesh)
-    
-    // Setup
-    this.environment = new Environment()
-    
+    // Wait for resources
+    this.resources.on("ready", () => {
+      // Setup
+      this.environment = new Environment();
+    });
   }
 }
