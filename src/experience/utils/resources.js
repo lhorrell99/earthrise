@@ -1,12 +1,15 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import EventEmitter from "./eventEmitter.js";
+import Experience from "../experience.js";
 
 export default class Resources extends EventEmitter {
-  constructor(assets) {
+  constructor() {
     super();
 
-    this.assets = assets;
+    this.experience = new Experience();
+    console.log(this.experience)
+    this.assets = this.experience.assets;
 
     this.items = {};
     this.toLoad = this.assets.length;
