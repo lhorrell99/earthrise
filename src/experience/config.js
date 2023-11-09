@@ -1,5 +1,7 @@
 /*
-Note: RER = relative to earthRadius
+Note: 
+  RER = relative to earth radius
+  RMC = relative to moon centre
 */
 
 export default {
@@ -11,6 +13,14 @@ export default {
     fov: 20,
     nearDist: 0.01,
     farDist: 1000,
+    cartCoordsRMC: {
+      x: 0,
+      yRER: 1.01 / 4,
+      z: 0,
+    },
+    groupTransforms: {
+      xRotation: -Math.PI / 75,
+    },
   },
   geometries: {
     earth: {
