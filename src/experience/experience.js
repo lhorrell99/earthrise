@@ -13,7 +13,7 @@ export default class Experience {
   static instance;
 
   constructor(canvas) {
-    // Configure singleton (enables dependency injection on other classes)
+    // Configure singleton (clean dependency injection on child classes)
     if (Experience.instance) {
       return Experience.instance;
     }
@@ -23,7 +23,7 @@ export default class Experience {
     // Options
     this.canvas = canvas;
 
-    // Save data
+    // Save data objects
     this.assets = assets;
     this.config = config;
 

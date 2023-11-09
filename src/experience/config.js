@@ -1,5 +1,40 @@
+/*
+Note: RER = relative to earthRadius
+*/
+
 export default {
-  // name: "earthTopoBathyTexture",
-  // source: "/assets/nasa-earth-topo-bathy-july-5400x2700.png",
-  // type: "texture",
+  earthRadius: 5, // Separated for convience (used to parameterise scene)
+  utils: {
+    axesHelperSize: 10,
+  },
+  camera: {
+    fov: 20,
+    nearDist: 0.01,
+    farDist: 1000,
+  },
+  geometries: {
+    earth: {
+      widthSegments: 64,
+      heightSegments: 64,
+      cartCoords: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
+    },
+    moon: {
+      radiusRER: 0.25,
+      widthSegments: 256,
+      heightSegments: 256,
+      cartCoords: {
+        x: 0,
+        y: 0,
+        zRER: 10,
+      },
+      groupTransforms: {
+        zRotation: Math.PI / 2,
+      },
+    },
+  },
+  environment: {},
 };

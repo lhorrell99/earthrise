@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import Experience from "../experience";
 import Environment from "./environment";
+import Earth from "./earth";
+import Moon from "./moon";
 
 export default class World {
   constructor() {
@@ -12,6 +14,8 @@ export default class World {
     this.resources.on("ready", () => {
       // Setup
       this.environment = new Environment();
+      this.earth = new Earth();
+      this.moon = new Moon();
     });
   }
 }

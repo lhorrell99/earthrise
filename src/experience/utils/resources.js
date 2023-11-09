@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import EventEmitter from "./eventEmitter.js";
 import Experience from "../experience.js";
 
@@ -8,7 +7,6 @@ export default class Resources extends EventEmitter {
     super();
 
     this.experience = new Experience();
-    console.log(this.experience)
     this.assets = this.experience.assets;
 
     this.items = {};
@@ -28,7 +26,7 @@ export default class Resources extends EventEmitter {
     // Load each asset
     for (const asset of this.assets) {
       if (asset.type === "texture") {
-        this.loaders.textureLoader.load(asset.path, (file) => {
+        this.loaders.textureLoader.load(asset.source, (file) => {
           this.assetLoaded(asset, file);
         });
       }
