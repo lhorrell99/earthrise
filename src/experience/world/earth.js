@@ -34,7 +34,6 @@ export default class Earth {
 
   setMesh() {
     this.mesh = new THREE.Mesh(this.geometry, this.material);
-    // this.scene.add(this.mesh);
   }
 
   setPosition() {
