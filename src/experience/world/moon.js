@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import Experience from "../experience";
+import DualGeodesicIcosahedron from "../geometries/dualGeodesicIcosahedron";
 
 export default class Moon {
   constructor() {
@@ -16,11 +17,10 @@ export default class Moon {
   }
 
   setGeometry() {
-    this.geometry = new THREE.SphereGeometry(
-      this.config.geometries.moon.radiusRER * this.config.earthRadius,
-      this.config.geometries.moon.widthSegments,
-      this.config.geometries.moon.heightSegments
+    const dGI = new DualGeodesicIcosahedron(
+      this.config.geometries.moon.radiusRER * this.config.earthRadius
     );
+    this.geometry = dGI.getGeometry();
   }
 
   setTextures() {}
@@ -45,7 +45,7 @@ export default class Moon {
       this.config.geometries.moon.cartCoords.y,
       this.config.geometries.moon.cartCoords.zRER * this.config.earthRadius
     );
-    this.group.rotateZ(this.config.geometries.moon.groupTransforms.zRotation)
+    this.group.rotateZ(this.config.geometries.moon.groupTransforms.zRotation);
 
     // Add meshes
     this.group.add(this.mesh);
