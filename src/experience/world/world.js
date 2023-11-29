@@ -3,7 +3,6 @@ import Experience from "../experience";
 import Environment from "./environment";
 import Earth from "./earth";
 import Moon from "./moon";
-import TestGeometry from "./geometryTestbed";
 
 export default class World {
   constructor() {
@@ -15,9 +14,8 @@ export default class World {
     this.resources.on("ready", () => {
       // Setup
       this.environment = new Environment();
-      // this.earth = new Earth();
-      // this.moon = new Moon();
-      this.geometryTest = new TestGeometry();
+      this.earth = new Earth();
+      this.moon = new Moon();
     });
   }
 }

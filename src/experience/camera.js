@@ -21,8 +21,7 @@ export default class Camera {
       this.config.camera.farDist
     );
 
-    
-    this.instance.position.set(0, 0, 50); // TODO: proper setup with group
+    // this.instance.position.set(0, 0, 50); // TODO: proper setup with group
   }
 
   setPosition() {
@@ -34,7 +33,7 @@ export default class Camera {
       this.config.geometries.moon.cartCoords.y,
       this.config.geometries.moon.cartCoords.zRER * this.config.earthRadius
     );
-    this.group.rotateX(this.config.camera.groupTransforms.xRotation)
+    this.group.rotateX(this.config.camera.groupTransforms.xRotation);
 
     // Add instance
     this.group.add(this.instance);
@@ -43,7 +42,7 @@ export default class Camera {
       this.config.camera.cartCoordsRMC.x,
       this.config.camera.cartCoordsRMC.yRER * this.config.earthRadius,
       this.config.camera.cartCoordsRMC.z
-    )
+    );
 
     this.scene.add(this.group);
   }

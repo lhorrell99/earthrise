@@ -19,7 +19,7 @@ export default class Renderer {
       antialias: true,
     });
 
-    // TODO: renderer optimisations (ref bs tutorial and repos)
+    // TODO: renderer optimisations (ref bruno simon tutorial and repos)
     this.instance.setSize(this.sizes.width, this.sizes.height);
     this.instance.setPixelRatio(this.sizes.pixelRatio);
   }
