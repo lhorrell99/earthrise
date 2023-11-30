@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import Experience from "../experience";
-import DualGeodesicIcosahedron from "../geometries/dualGeodesicIcosahedron";
+import DGI from "../geometries/dualGeodesicIcosahedron";
 
 export default class Earth {
   constructor() {
@@ -17,8 +17,7 @@ export default class Earth {
   }
 
   setGeometry() {
-    const dGI = new DualGeodesicIcosahedron(this.config.earthRadius)
-    this.geometry = dGI.getGeometry();
+    this.geometry = new DGI(this.config.earthRadius)
   }
 
   setTextures() {}

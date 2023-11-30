@@ -46,5 +46,30 @@ export default {
       },
     },
   },
-  environment: {},
+  environment: {
+    dirLight: {
+      color: "#FFFAED",
+      intensity: 3,
+      spherCoords: {
+        radiusRER: 10,
+        phi: 2 * (Math.PI / 6),
+        theta: 10 * (Math.PI / 6),
+      },
+    },
+    ambLight: {
+      color: "#FFFFFF",
+      intensity: 0.6,
+    },
+    rectAreaLight: {
+      color: "#F5DCC9", 
+      intensity: 13, 
+      width: 1.5, 
+      height: 5,
+      spherCoords: {
+        radiusRER: 1.3,
+        phi: Math.PI / 2,
+        theta: (22.5 / 12) * Math.PI,
+      }
+    },
+  },
 };
