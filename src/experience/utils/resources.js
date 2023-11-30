@@ -19,14 +19,20 @@ export default class Resources extends EventEmitter {
 
   setLoaders() {
     this.loaders = {};
-    this.loaders.textureLoader = new THREE.TextureLoader();
+    // this.loaders.textureLoader = new THREE.TextureLoader();
+    this.loaders.imageLoader = new THREE.ImageLoader();
   }
 
   startLoading() {
     // Load each asset
     for (const asset of this.assets) {
-      if (asset.type === "texture") {
-        this.loaders.textureLoader.load(asset.source, (file) => {
+      // if (asset.type === "texture") {
+      //   this.loaders.textureLoader.load(asset.source, (file) => {
+      //     this.assetLoaded(asset, file);
+      //   });
+      // }
+      if (asset.type === "image") {
+        this.loaders.imageLoader.load(asset.source, (file) => {
           this.assetLoaded(asset, file);
         });
       }

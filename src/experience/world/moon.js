@@ -7,7 +7,7 @@ export default class Moon {
     this.experience = new Experience();
     this.scene = this.experience.scene;
     this.resources = this.experience.resources;
-    this.config = this.experience.config;
+    this.cfg = this.experience.cfg;
 
     this.setGeometry();
     this.setTextures();
@@ -18,7 +18,7 @@ export default class Moon {
 
   setGeometry() {
     this.geometry = new DGI(
-      this.config.geometries.moon.radiusRER * this.config.earthRadius
+      this.cfg.geometries.moon.radiusRER * this.cfg.earthRadius
     );
   }
 
@@ -40,11 +40,11 @@ export default class Moon {
 
     // Position group
     this.group.position.set(
-      this.config.geometries.moon.cartCoords.x,
-      this.config.geometries.moon.cartCoords.y,
-      this.config.geometries.moon.cartCoords.zRER * this.config.earthRadius
+      this.cfg.geometries.moon.cCoords.x,
+      this.cfg.geometries.moon.cCoords.y,
+      this.cfg.geometries.moon.cCoords.zRER * this.cfg.earthRadius
     );
-    this.group.rotateZ(this.config.geometries.moon.groupTransforms.zRotation);
+    this.group.rotateZ(this.cfg.geometries.moon.groupTransforms.zRotation);
 
     // Add meshes
     this.group.add(this.mesh);

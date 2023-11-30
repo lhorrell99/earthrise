@@ -4,8 +4,8 @@ import Experience from "../experience";
 export default class Environment {
   constructor() {
     this.experience = new Experience();
+    this.cfg = this.experience.cfg;
     this.scene = this.experience.scene;
-    this.config = this.experience.config;
 
     this.setDirectionalLight();
     this.setAmbientLight();
@@ -13,56 +13,67 @@ export default class Environment {
   }
 
   setDirectionalLight() {
+    // Init directional light
     this.directionalLight = new THREE.DirectionalLight(
-      this.config.environment.dirLight.color,
-      this.config.environment.dirLight.intensity
+      this.cfg.env.dirLight.color,
+      this.cfg.env.dirLight.intensity
     );
 
+    // Set light position
     this.directionalLight.position.setFromSphericalCoords(
-      this.config.environment.dirLight.spherCoords.radius,
-      this.config.environment.dirLight.spherCoords.phi,
-      this.config.environment.dirLight.spherCoords.theta
+      this.cfg.env.dirLight.sCoords.radius,
+      this.cfg.env.dirLight.sCoords.phi,
+      this.cfg.env.dirLight.sCoords.theta
     );
 
-    this.directionalLightTarget = new THREE.Object3D();
+    // Define target position
+    this.directionalLightTarget = new THREE.Object3D(); // TODO is this the cleanest strategy? (2023-30-11 I think probably)
     this.directionalLightTarget.position.set(
-      this.config.geometries.earth.cartCoords.x,
-      this.config.geometries.earth.cartCoords.y,
-      this.config.geometries.earth.cartCoords.y
+      this.cfg.geometries.earth.cCoords.x,
+      this.cfg.geometries.earth.cCoords.y,
+      this.cfg.geometries.earth.cCoords.y
     );
     this.directionalLight.target = this.directionalLightTarget;
+
+    // Add to scene
     this.scene.add(this.directionalLight);
   }
 
   setAmbientLight() {
+    // Init light
     this.ambientLight = new THREE.AmbientLight(
-      this.config.environment.ambLight.color,
-      this.config.environment.ambLight.intensity
+      this.cfg.env.ambLight.color,
+      this.cfg.env.ambLight.intensity
     );
 
+    // Add to scene
     this.scene.add(this.ambientLight);
   }
 
   setRectAreaLight() {
+    // Init light
     this.rectAreaLight = new THREE.RectAreaLight(
-      this.config.environment.rectAreaLight.color,
-      this.config.environment.rectAreaLight.intensity,
-      this.config.environment.rectAreaLight.width,
-      this.config.environment.rectAreaLight.height
+      this.cfg.env.rectAreaLight.color,
+      this.cfg.env.rectAreaLight.intensity,
+      this.cfg.env.rectAreaLight.width,
+      this.cfg.env.rectAreaLight.height
     );
 
+    // Set light position
     this.rectAreaLight.position.setFromSphericalCoords(
-      this.config.environment.rectAreaLight.spherCoords.radiusRER * this.config.earthRadius,
-      this.config.environment.rectAreaLight.spherCoords.phi,
-      this.config.environment.rectAreaLight.spherCoords.theta,
+      this.cfg.env.rectAreaLight.sCoords.radiusRER * this.cfg.earthRadius,
+      this.cfg.env.rectAreaLight.sCoords.phi,
+      this.cfg.env.rectAreaLight.sCoords.theta
     );
 
+    // Define target position
     this.rectAreaLight.lookAt(
-      this.config.geometries.earth.cartCoords.x,
-      this.config.geometries.earth.cartCoords.y,
-      this.config.geometries.earth.cartCoords.z
+      this.cfg.geometries.earth.cCoords.x,
+      this.cfg.geometries.earth.cCoords.y,
+      this.cfg.geometries.earth.cCoords.z
     );
 
+    // Add to scene
     this.scene.add(this.rectAreaLight);
   }
 }

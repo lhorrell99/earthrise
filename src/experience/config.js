@@ -13,7 +13,7 @@ export default {
     fov: 20,
     nearDist: 0.01,
     farDist: 1000,
-    cartCoordsRMC: {
+    cCoordsRMC: {
       x: 0,
       yRER: 1.01 / 4,
       z: 0,
@@ -24,9 +24,7 @@ export default {
   },
   geometries: {
     earth: {
-      widthSegments: 64,
-      heightSegments: 64,
-      cartCoords: {
+      cCoords: {
         x: 0,
         y: 0,
         z: 0,
@@ -34,9 +32,7 @@ export default {
     },
     moon: {
       radiusRER: 0.25,
-      widthSegments: 256,
-      heightSegments: 256,
-      cartCoords: {
+      cCoords: {
         x: 0,
         y: 0,
         zRER: 10,
@@ -46,11 +42,11 @@ export default {
       },
     },
   },
-  environment: {
+  env: {
     dirLight: {
       color: "#FFFAED",
       intensity: 3,
-      spherCoords: {
+      sCoords: {
         radiusRER: 10,
         phi: 2 * (Math.PI / 6),
         theta: 10 * (Math.PI / 6),
@@ -65,7 +61,7 @@ export default {
       intensity: 13, 
       width: 1.5, 
       height: 5,
-      spherCoords: {
+      sCoords: {
         radiusRER: 1.3,
         phi: Math.PI / 2,
         theta: (22.5 / 12) * Math.PI,

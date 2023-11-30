@@ -25,7 +25,7 @@ export default class Experience {
 
     // Save data objects
     this.assets = assets;
-    this.config = config;
+    this.cfg = config;
 
     // Setup
     this.sizes = new Sizes();
