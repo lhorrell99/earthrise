@@ -12,11 +12,15 @@ export default class World {
 
     // Wait for resources
     this.resources.on("ready", () => {
-
       // Setup
       this.environment = new Environment();
       this.earth = new Earth();
-      // this.moon = new Moon();
+      this.moon = new Moon();
     });
+  }
+
+  update() {
+    if (this.earth) this.earth.update();
+    if (this.moon) this.moon.update();
   }
 }

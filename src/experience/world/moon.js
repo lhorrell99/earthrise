@@ -18,7 +18,7 @@ export default class Moon {
 
   setGeometry() {
     this.geometry = new DGI(
-      null,
+      this.resources.items.nasaMoonImage,
       this.resources.items.dGIVertices,
       this.resources.items.dGIFaces,
       this.cfg.geometries.moon.radiusRER * this.cfg.earthRadius
@@ -28,9 +28,10 @@ export default class Moon {
   setTextures() {}
 
   setMaterial() {
-    this.material = new THREE.MeshBasicMaterial({
-      wireframe: true,
-      color: 0x00ff00, // TODO remove
+    this.material = new THREE.MeshPhysicalMaterial({
+      metalness: 0,
+      roughness: 0.8,
+      vertexColors: true,
     });
   }
 
@@ -52,5 +53,9 @@ export default class Moon {
     // Add meshes
     this.group.add(this.mesh);
     this.scene.add(this.group);
+  }
+
+  update() {
+    this.group.rotation.x += 0.0001;
   }
 }

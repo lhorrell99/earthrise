@@ -98,10 +98,10 @@ export default class DGI {
 
   getColorAtPoint(lat, lon) {
     const x = Math.floor(
-      ((lon + Math.PI) / (2 * Math.PI)) * this.colorMap.width
+      ((lon + Math.PI) / (2 * Math.PI)) * (this.colorMap.width - 1) // - 1 to guarantee the point always falls inside the canvas
     );
     const y = Math.floor(
-      ((Math.PI / 2 - lat) / Math.PI) * this.colorMap.height
+      ((Math.PI / 2 - lat) / Math.PI) * (this.colorMap.height - 1)
     );
 
     // Read the pixel color at from the Image

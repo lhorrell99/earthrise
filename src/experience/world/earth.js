@@ -53,4 +53,8 @@ export default class Earth {
     this.group.add(this.mesh);
     this.scene.add(this.group);
   }
+
+  update() {
+    this.group.rotation.y += 0.001
+  }
 }

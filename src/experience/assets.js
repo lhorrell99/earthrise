@@ -1,7 +1,12 @@
 export default [
   {
     name: "earthTopoBathyImage",
-    source: "/assets/nasa-earth-topo-bathy-july-5400x2700.png",
+    source: "/assets/nasaEarthTopoBathyJuly5400x2700.png",
+    type: "image",
+  },
+  {
+    name: "nasaMoonImage",
+    source: "/assets/nasaMoon1024x512.jpg",
     type: "image",
   },
   {
