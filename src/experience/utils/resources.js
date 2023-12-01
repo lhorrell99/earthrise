@@ -35,13 +35,8 @@ export default class Resources extends EventEmitter {
       //   });
       // }
       if (asset.type === "image") {
-        this.loaders.imageLoader.load(asset.source, (img) => {
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          context.drawImage(img, img.width, img.height);
-
-          // Save canvas to items
-          this.assetLoaded(asset, canvas);
+        this.loaders.imageLoader.load(asset.source, (file) => {
+          this.assetLoaded(asset, file);
         });
       }
       if (asset.type === "json") {

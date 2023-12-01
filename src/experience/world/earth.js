@@ -17,22 +17,21 @@ export default class Earth {
   }
 
   setGeometry() {
-    this.geometry = new DGI(this.cfg.earthRadius);
+    this.geometry = new DGI(
+      this.resources.items.earthTopoBathyImage,
+      this.resources.items.dGIVertices,
+      this.resources.items.dGIFaces,
+      this.cfg.earthRadius
+    );
   }
 
   setTextures() {}
 
   setMaterial() {
-    // this.material = new THREE.MeshBasicMaterial({
-    //   wireframe: true,
-    //   color: 0xff0000, // TODO remove
-    // });
-
     this.material = new THREE.MeshPhysicalMaterial({
-      color: "#000154",
-      // map: earthTexture,
       metalness: 0,
       roughness: 0.8,
+      vertexColors: true,
     });
   }
 

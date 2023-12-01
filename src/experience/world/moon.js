@@ -18,6 +18,9 @@ export default class Moon {
 
   setGeometry() {
     this.geometry = new DGI(
+      null,
+      this.resources.items.dGIVertices,
+      this.resources.items.dGIFaces,
       this.cfg.geometries.moon.radiusRER * this.cfg.earthRadius
     );
   }
