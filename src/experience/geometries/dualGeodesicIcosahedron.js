@@ -66,7 +66,7 @@ export default class DGI {
     });
 
     // Rescale color values (currently 0-255, need to be 0-1)
-    const maxVal = Math.max(...this.colors);
+    const maxVal = this.colors.reduce((a, b) => Math.max(a, b), 0);
     this.colors = this.colors.map((u) => u / maxVal);
   }
 
