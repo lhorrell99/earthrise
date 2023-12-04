@@ -1,3 +1,5 @@
+// TODO refactor as function (probably cleaner)
+
 import * as THREE from "three";
 
 export default class DGI {

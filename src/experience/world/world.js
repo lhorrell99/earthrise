@@ -3,6 +3,7 @@ import Experience from "../experience";
 import Environment from "./environment";
 import Earth from "./earth";
 import Moon from "./moon";
+import Atmosphere from "./atmosphere";
 
 export default class World {
   constructor() {
@@ -15,6 +16,7 @@ export default class World {
       // Setup
       this.environment = new Environment();
       this.earth = new Earth();
+      this.atmosphere = new Atmosphere();
       this.moon = new Moon();
     });
   }

@@ -30,6 +30,11 @@ export default {
         z: 0,
       },
     },
+    atmo: {
+      radiusRER: 1.1,
+      hSegs: 32,
+      wSegs: 32
+    },
     moon: {
       radiusRER: 0.25,
       cCoords: {
@@ -58,7 +63,7 @@ export default {
     },
     rectAreaLight: {
       color: "#F5DCC9", 
-      intensity: 13, 
+      intensity: 9, 
       width: 1.5, 
       height: 5,
       sCoords: {

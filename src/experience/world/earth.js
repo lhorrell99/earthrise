@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import DGI from "../geometries/dualGeodesicIcosahedron";
 import Experience from "../experience";
+import physicalExtendedMaterial from "../materials/physicalExtended"
 
 export default class Earth {
   constructor() {
@@ -28,11 +29,7 @@ export default class Earth {
   setTextures() {}
 
   setMaterial() {
-    this.material = new THREE.MeshPhysicalMaterial({
-      metalness: 0,
-      roughness: 0.8,
-      vertexColors: true,
-    });
+    this.material = physicalExtendedMaterial(true)
   }
 
   setMesh() {
@@ -40,6 +37,7 @@ export default class Earth {
   }
 
   setPosition() {
+    // TODO is group needed?
     this.group = new THREE.Group();
 
     // Position group
