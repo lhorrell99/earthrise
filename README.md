@@ -1,3 +1,5 @@
+**[Click here for live site](https://earthrise.vercel.app/)**
+
 ``` bash
 # Install dependencies
 npm install
