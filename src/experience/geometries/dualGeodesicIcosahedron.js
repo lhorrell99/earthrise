@@ -31,7 +31,7 @@ export default class DGI {
     this.canvas = document.createElement("canvas");
     this.canvas.width = this.colorMap.width;
     this.canvas.height = this.colorMap.height;
-    this.context = this.canvas.getContext("2d");
+    this.context = this.canvas.getContext("2d", { willReadFrequently: true });
     this.context.drawImage(
       this.colorMap,
       0,
