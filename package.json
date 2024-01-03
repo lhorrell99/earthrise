@@ -7,11 +7,10 @@
     "build": "vite build"
   },
   "devDependencies": {
-    "vite": "^4.4.10",
+    "vite": "^4.4.12",
     "vite-plugin-string": "^1.2.1"
   },
   "dependencies": {
-    "three": "^0.157.0",
-    "tweakpane": "^4.0.1"
+    "three": "^0.157.0"
   }
 }
